@@ -1,4 +1,4 @@
-# WorkCadenceTransfer.
+# WorkCadenceTransfer..
 
 휴대폰에서 작성한 메모와 사용자가 선택한 사진을 사내 Windows PC로 안전하게 전달하는
 독립 프로젝트입니다.
