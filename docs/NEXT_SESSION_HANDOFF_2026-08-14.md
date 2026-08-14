@@ -2,9 +2,9 @@
 
 기준일: 2026-08-14
 
-상태: `PRE-IMPLEMENTATION`
+상태: `PRE-IMPLEMENTATION · CONTRACT_BASELINE_SEALED`
 
-Git: 독립 로컬 저장소 `main`, commit·remote 없음
+Git: 독립 로컬 저장소 `main`, 첫 commit `df08bb14caab8f4d76af02883ba2c8d5d0dec543`, remote 없음
 
 작업 경로: `C:\marco\WorkCadenceTransfer`
 
@@ -33,6 +33,7 @@ Git: 독립 로컬 저장소 `main`, commit·remote 없음
 - submission·등록 QR·등록 결과·READY ACK·오류 JSON schema와 semantic validation 계약
 - memo-only와 photo metadata canonical digest 고정 test vector
 - HTML 프로젝트 분리 설명서
+- 문서·계약 baseline 24개 파일의 첫 local commit
 
 앱 소스, signing 설정, 실제 인증서·키, APK·IPA·EXE는 아직 없습니다. 문서가 구현 완료를
 뜻하지 않습니다.
