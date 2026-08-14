@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workcadence.local/contracts/transfer/ready-ack-v1.schema.json",
+  "title": "WorkCadenceTransfer ready acknowledgement v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "type", "accepted", "state", "deviceId", "submissionId", "contentDigest", "recordId", "storedAt"],
+  "properties": {
+    "version": { "const": 1 },
+    "type": { "const": "transfer_ready_ack" },
+    "accepted": { "const": true },
+    "state": { "const": "READY" },
+    "deviceId": { "$ref": "#/$defs/uuidV4" },
+    "submissionId": { "$ref": "#/$defs/uuidV4" },
+    "contentDigest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "recordId": { "$ref": "#/$defs/uuidV4" },
+    "storedAt": { "$ref": "#/$defs/utcMilliseconds" }
+  },
+  "$defs": {
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "utcMilliseconds": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    }
+  }
+}

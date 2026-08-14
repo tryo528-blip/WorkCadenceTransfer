@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'none'; base-uri 'none'">
+  <title>WorkCadenceTransfer 프로젝트 분리 결정</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink:#10213d; --muted:#5f6f88; --line:#dbe3ef; --paper:#f4f7fb;
+      --card:#fff; --blue:#2457d6; --blue-soft:#eaf0ff; --green:#087a5b;
+      --green-soft:#e5f7f1; --amber:#a45e00; --amber-soft:#fff3d9; --red:#bd2f45;
+      --red-soft:#ffebef; --shadow:0 12px 30px rgba(28,48,84,.09);
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:Pretendard,"Segoe UI",sans-serif; line-height:1.62; }
+    main { width:min(1120px,calc(100% - 28px)); margin:22px auto 60px; }
+    header { padding:34px; border-radius:24px; color:#fff; background:linear-gradient(135deg,#102b69,#2457d6 70%,#4e77e7); box-shadow:var(--shadow); }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { margin-bottom:10px; font-size:clamp(2rem,4vw,3.35rem); line-height:1.12; letter-spacing:-.045em; }
+    h2 { margin-bottom:12px; font-size:1.65rem; letter-spacing:-.025em; }
+    h3 { margin-bottom:8px; font-size:1.08rem; }
+    header p { max-width:840px; margin-bottom:0; color:#dce7ff; }
+    .eyebrow { margin-bottom:8px; color:#8fb0ff; font-size:.78rem; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+    .badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+    .badge,.tag { display:inline-flex; border-radius:999px; padding:5px 10px; font-size:.78rem; font-weight:800; }
+    .badge { color:#fff; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.1); }
+    nav { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+    nav a { padding:8px 11px; border:1px solid var(--line); border-radius:999px; color:var(--blue); background:var(--card); text-decoration:none; font-size:.86rem; font-weight:750; }
+    section { margin-top:14px; padding:26px; border:1px solid var(--line); border-radius:20px; background:var(--card); box-shadow:var(--shadow); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .card { padding:20px; border:1px solid var(--line); border-radius:16px; background:#fff; }
+    .tag.ok { color:var(--green); background:var(--green-soft); }
+    .tag.info { color:var(--blue); background:var(--blue-soft); }
+    .tag.hold { color:var(--amber); background:var(--amber-soft); }
+    .tag.no { color:var(--red); background:var(--red-soft); }
+    ul,ol { margin:10px 0 0; padding-left:1.25rem; }
+    li + li { margin-top:6px; }
+    code { padding:2px 5px; border-radius:6px; background:#eef2f8; font-family:"Cascadia Code",Consolas,monospace; font-size:.88em; }
+    .flow { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; align-items:stretch; }
+    .step { position:relative; display:grid; place-items:center; min-height:82px; padding:11px; border:1px solid #cdd9f6; border-radius:14px; color:#173979; background:var(--blue-soft); text-align:center; font-size:.84rem; font-weight:800; }
+    .step:not(:last-child)::after { content:"→"; position:absolute; right:-10px; top:50%; z-index:2; transform:translateY(-50%); color:var(--blue); }
+    .callout { margin-top:14px; padding:16px 18px; border-left:5px solid var(--blue); border-radius:12px; background:var(--blue-soft); }
+    .callout.warn { border-left-color:var(--amber); background:var(--amber-soft); }
+    .callout strong { display:block; margin-bottom:4px; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.91rem; }
+    th,td { padding:11px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:#f3f6fb; }
+    .yes { color:var(--green); font-weight:800; }
+    .no { color:var(--red); font-weight:800; }
+    .muted { color:var(--muted); }
+    footer { margin-top:16px; color:var(--muted); text-align:center; font-size:.82rem; }
+    @media (max-width:820px) { .grid,.flow { grid-template-columns:1fr; } .step:not(:last-child)::after { content:"↓"; right:auto; top:auto; bottom:-18px; } header,section { padding:20px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Project split decision · 2026-08-14</div>
+    <h1>근태관리와 전송기능을<br>두 프로젝트로 완전 분리</h1>
+    <p>현재 WorkCadence는 근태·메일·구인공고 프로젝트로 유지합니다. 텍스트 메모, 직접촬영 사진과 카카오톡·문자 공유수신 사진 전송은 독립 프로젝트 WorkCadenceTransfer로 이관합니다.</p>
+    <div class="badges">
+      <span class="badge">별도 저장소</span><span class="badge">별도 앱</span>
+      <span class="badge">Foreground only</span><span class="badge">사진 1~5장</span>
+      <span class="badge">READY ACK 뒤 모바일 삭제</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="#split">분리 경계</a><a href="#p1">P1</a><a href="#p2">P2</a>
+    <a href="#p3">P3 설명</a><a href="#photos">사진 두 경로</a>
+    <a href="#failure">전송 실패</a><a href="#permissions">권한</a><a href="#pc-security">PC 암호화</a>
+  </nav>
+
+  <section id="split">
+    <div class="eyebrow">Final boundary</div>
+    <h2>최종 프로젝트 경계</h2>
+    <div class="grid">
+      <article class="card">
+        <span class="tag info">현재 프로젝트</span>
+        <h3>WorkCadence</h3>
+        <ul>
+          <li>근태와 휴게시간</li><li>Galaxy Wi-Fi 근태·통화 분류</li>
+          <li>메일/AI 요약</li><li>구인공고 관리</li><li>기존 보안 백업</li>
+        </ul>
+      </article>
+      <article class="card">
+        <span class="tag ok">새 프로젝트</span>
+        <h3>WorkCadenceTransfer</h3>
+        <ul>
+          <li>서울 오늘 날짜가 붙는 자유 텍스트 메모</li><li>앱 내부 직접촬영</li>
+          <li>카카오톡·문자 이미지 공유수신</li><li>사진 1~5장 foreground 전송</li>
+          <li>Windows 암호화 정본 · 앱 자동삭제 없음</li>
+        </ul>
+      </article>
+    </div>
+    <div class="callout"><strong>소스까지 분리합니다.</strong>두 앱은 application ID, 앱명, 아이콘, 권한, 데이터, 암호키와 빌드 산출물을 공유하지 않습니다. WorkCadenceTransfer는 기존 WorkCadence 소스에 의존하지 않습니다.</div>
+  </section>
+
+  <section id="p1">
+    <div class="eyebrow">Blocking security</div>
+    <h2>P1 결정</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>문제</th><th>결정</th><th>구현 증거</th></tr></thead>
+      <tbody>
+        <tr><td>앱·권한 혼합</td><td class="yes">프로젝트 2개</td><td>별도 repo·application ID·manifest·sandbox</td></tr>
+        <tr><td>휴대폰 흔적</td><td class="yes">없애고, 남으면 암호화</td><td>무갤러리·app-private·no-backup·제출별 AES-GCM</td></tr>
+        <tr><td>개인정보 운영 판단</td><td>사용자 책임</td><td>앱은 평문 로그·원본 파일명·EXIF·썸네일을 만들지 않음</td></tr>
+        <tr><td>기능·권한</td><td class="yes">최소 allowlist</td><td>산출물의 merged manifest·entitlements 검사</td></tr>
+        <tr><td>중복·부분파일</td><td class="yes">멱등·원자 저장</td><td>단말+submission ID+digest, staging→ready, overwrite 0</td></tr>
+        <tr><td>경로조작</td><td class="yes">서버 UUID만</td><td>Windows가 recordId 생성, ready/&lt;recordId&gt;만 사용, client submission ID·파일명 무시</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="p2">
+    <div class="eyebrow">Operational safety</div>
+    <h2>P2 결정</h2>
+    <div class="grid">
+      <article class="card"><span class="tag ok">삭제</span><h3>성공 확인 후에만</h3><p>PC가 완전수신·해시검증·원자 저장을 끝낸 뒤, 단말·제출 ID·digest가 모두 맞는 인증된 READY ACK를 돌려준 경우에만 모바일 키와 사진을 삭제합니다.</p></article>
+      <article class="card"><span class="tag ok">오작동</span><h3>정본은 한 건만</h3><p>빠른 다중 탭, 재시도, 앱 crash와 ACK 유실에서도 같은 제출은 같은 정본과 ACK를 재사용합니다.</p></article>
+      <article class="card"><span class="tag ok">전송방식</span><h3>Foreground only</h3><p>백그라운드 자동전송은 만들지 않습니다. 사용자는 전송 화면을 열어 진행률과 성공을 직접 확인합니다.</p></article>
+      <article class="card"><span class="tag ok">Batch</span><h3>메모 또는 사진 1~5장</h3><p>메모만, 사진만 1~5장, 메모+사진 1~5장을 허용하고 빈 제출과 6장은 네트워크 전에 거부합니다.</p></article>
+    </div>
+  </section>
+
+  <section id="p3">
+    <div class="eyebrow">Optional later</div>
+    <h2>P3는 무엇인가?</h2>
+    <p>P3는 지금 없어도 안전한 첫 버전을 사용할 수 있는 편의기능입니다. 결함이 아니라 “나중에 필요하면 추가”할 항목입니다. 처음부터 넣으면 권한·네트워크·시험 범위가 커져 오히려 출시가 늦고 불안정해집니다.</p>
+    <div class="grid">
+      <article class="card"><span class="tag hold">보류</span><h3>자동 PC 검색</h3><p>Bonjour 대신 QR 또는 수동으로 PC를 등록합니다.</p></article>
+      <article class="card"><span class="tag no">제외 확정</span><h3>백그라운드·push</h3><p>Foreground 전송으로 결정했으므로 첫 버전에 넣지 않습니다.</p></article>
+      <article class="card"><span class="tag no">금지</span><h3>Cloud·후속 시스템 직접연결</h3><p>외부 업무데이터 서버와 후속 시스템 API·DB 직접 연결은 모두 금지합니다.</p></article>
+      <article class="card"><span class="tag hold">보류</span><h3>OCR·자동분류·얼굴판별</h3><p>촬영·전송의 핵심 기능이 아니며 개인정보 처리도 늘립니다.</p></article>
+      <article class="card"><span class="tag hold">보류</span><h3>끊긴 지점부터 이어 보내기</h3><p>첫 버전은 1~5장 제출 묶음을 통째로 안전하게 재시도합니다. 일부 chunk만 이어 보내는 기능은 실제 불편이 확인될 때 검토합니다.</p></article>
+    </div>
+    <div class="callout warn"><strong>즉 P3를 안 만드는 이유</strong>빼먹은 것이 아니라 첫 버전을 작고 검증 가능하게 만들기 위해 의도적으로 미룬 것입니다.</div>
+  </section>
+
+  <section id="photos">
+    <div class="eyebrow">Both required</div>
+    <h2>사진 문제 두 가지를 모두 해결</h2>
+    <div class="grid">
+      <article class="card"><span class="tag ok">필수 1</span><h3>내가 직접 찍은 사진</h3><ul><li>앱 카메라가 메모리/암호화 영역으로만 촬영</li><li>갤러리 asset 생성 0</li><li>전송 실패면 암호화 pending 유지</li><li>READY ACK 뒤 모바일 삭제</li></ul></article>
+      <article class="card"><span class="tag ok">필수 2</span><h3>상대가 카톡·문자로 준 사진</h3><ul><li>상대방 앱 설치 불필요</li><li>다운로드 대신 공유 → WorkCadenceTransfer</li><li>공유 수신 화면은 즉시 암호화만 하고 본 앱에서 전송</li><li>우리 갤러리 사본 생성 0</li><li>원래 메신저·OS 사본은 프로젝트 통제 밖</li></ul></article>
+    </div>
+    <div class="callout"><strong>촬영 대상과 허락은 사용자 운영사항</strong>앱이 사람·집안 판별이나 강제 동의 화면을 만들지는 않습니다. 기술적으로는 받은 데이터가 갤러리·로그·백업에 평문으로 남지 않게 처리합니다.</div>
+  </section>
+
+  <section id="failure">
+    <div class="eyebrow">No data loss</div>
+    <h2>PC 전송이 실패해도 다시 찍지 않게</h2>
+    <div class="flow" role="img" aria-label="암호화 보관부터 PC 성공 확인과 모바일 삭제까지의 순서">
+      <div class="step">모바일<br>암호화 보관</div><div class="step">PC 암호문<br>staging 수신</div>
+      <div class="step">5장·hash<br>검증</div><div class="step">ready/&lt;recordId&gt;<br>원자 저장</div>
+      <div class="step">인증된<br>READY ACK</div><div class="step">모바일<br>키 선삭제</div>
+    </div>
+    <div class="callout warn"><strong>ACK 전 삭제 금지</strong>PC 꺼짐, Wi-Fi 단절, 앱 crash, 저장공간 부족과 ACK 유실에서는 성공 표시와 모바일 삭제가 모두 0건입니다. 같은 제출 ID와 digest로 묶음 전체를 재시도합니다. HTTP 200이나 값이 다른 ACK만으로도 삭제하지 않습니다.</div>
+  </section>
+
+  <section id="permissions">
+    <div class="eyebrow">Permission allowlist</div>
+    <h2>승인 권한</h2>
+    <div class="grid">
+      <article class="card"><h3>Android</h3><p><b>허용:</b> INTERNET, 사진 단계의 CAMERA. Android 17·target 37 이상이면 실제 필요할 때 LOCAL NETWORK만 별도 승인</p><p class="muted"><b>금지:</b> 위치, Wi-Fi 감지, 전화·통화기록, 연락처, SMS 읽기, 전체 사진첩, 부팅·백그라운드·알림</p></article>
+      <article class="card"><h3>iPhone</h3><p><b>허용:</b> Camera, Local Network, image Share Extension, 암호화 App Group</p><p class="muted"><b>금지:</b> Photo Library 전체권한, 위치, 연락처, Background Modes, push, analytics</p></article>
+    </div>
+    <div class="callout"><strong>등록한 PC만 신뢰</strong>PC 등록 QR의 TLS 인증서 지문과 단말별 등록키를 사용합니다. 평문 HTTP, trust-all 인증서, 공용 연결키는 금지합니다. 추가 권한이 필요해지면 기능·이유·대안·실제 manifest 증거를 다시 제시하고 승인받습니다.</div>
+  </section>
+
+  <section id="pc-security">
+    <div class="eyebrow">Plain-language security</div>
+    <h2>BitLocker·ACL·DPAPI는 무슨 뜻인가?</h2>
+    <div class="grid">
+      <article class="card"><h3>BitLocker</h3><p>PC나 SSD를 통째로 가져가도 Windows 잠금을 풀기 전에는 C: 드라이브 내용을 읽기 어렵게 하는 디스크 암호화입니다.</p></article>
+      <article class="card"><h3>NTFS ACL</h3><p>같은 PC의 다른 Windows 계정이 수신 폴더를 열거나 바꾸지 못하게 하는 폴더 출입권한입니다.</p></article>
+      <article class="card"><h3>AES-GCM + DPAPI</h3><p>사진과 메모 자체를 암호문으로 저장하고, 그 암호를 푸는 키도 receiver를 실행한 Windows 계정만 쓰도록 보호합니다.</p></article>
+      <article class="card"><h3>형님이 할 일</h3><p>기술 용어를 판단할 필요는 없습니다. 설치 단계에서 제가 실제 PC 설정과 다른 계정 접근 차단 시험을 확인해 PASS/FAIL로 보여드립니다.</p></article>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Next</div><h2>준비된 다음 단계</h2>
+    <ol><li>고정 schema·test vector의 conformance test</li><li>Windows foreground receiver와 암호화 정본 구현</li><li>Android 텍스트 메모 v1</li><li>Android 직접촬영·Sharesheet·5장 batch</li><li>실기기 검수</li><li>iPhone·Share Extension</li><li>기능 완료 후 Figma·실화면 승인·봉인</li></ol>
+  </section>
+
+  <footer>독립 프로젝트 준비 문서 · 구현 전 · 외부 스크립트·폰트·이미지 없음</footer>
+</main>
+</body>
+</html>

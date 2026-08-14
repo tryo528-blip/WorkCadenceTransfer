@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workcadence.local/contracts/transfer/enrollment-result-v1.schema.json",
+  "title": "WorkCadenceTransfer enrollment result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "type", "deviceId", "deviceSecret", "scope", "issuedAt"],
+  "properties": {
+    "version": { "const": 1 },
+    "type": { "const": "transfer_enrollment_result" },
+    "deviceId": { "$ref": "#/$defs/uuidV4" },
+    "deviceSecret": { "$ref": "#/$defs/base64Url32" },
+    "scope": { "const": "transfer_upload" },
+    "issuedAt": { "$ref": "#/$defs/utcMilliseconds" }
+  },
+  "$defs": {
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "base64Url32": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{43}$"
+    },
+    "utcMilliseconds": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    }
+  }
+}

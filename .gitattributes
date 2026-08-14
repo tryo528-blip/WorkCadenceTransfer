@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.heic binary
+*.ico binary
+*.apk binary
+*.aab binary
+*.ipa binary
+*.exe binary
+*.msi binary

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workcadence.local/contracts/transfer/enrollment-request-v1.schema.json",
+  "title": "WorkCadenceTransfer enrollment request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "type", "clientPlatform"],
+  "properties": {
+    "version": { "const": 1 },
+    "type": { "const": "transfer_enrollment_request" },
+    "clientPlatform": { "enum": ["android", "ios"] }
+  }
+}

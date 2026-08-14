@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workcadence.local/contracts/transfer/error-v1.schema.json",
+  "title": "WorkCadenceTransfer server error v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "type", "accepted", "code", "retryable"],
+  "properties": {
+    "version": { "const": 1 },
+    "type": { "const": "transfer_error" },
+    "accepted": { "const": false },
+    "code": { "type": "string" },
+    "retryable": { "type": "boolean" }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "code": { "enum": ["STORAGE_BUSY", "SUBMISSION_IN_PROGRESS"] },
+        "retryable": { "const": true }
+      }
+    },
+    {
+      "properties": {
+        "code": {
+          "enum": [
+            "INVALID_SUBMISSION",
+            "INVALID_MEDIA",
+            "RESOURCE_LIMIT_EXCEEDED",
+            "CONTENT_DIGEST_MISMATCH",
+            "SUBMISSION_CONFLICT",
+            "DEVICE_UNAUTHORIZED",
+            "SCOPE_DENIED",
+            "ENROLLMENT_REJECTED"
+          ]
+        },
+        "retryable": { "const": false }
+      }
+    }
+  ]
+}

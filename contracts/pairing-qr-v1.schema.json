@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workcadence.local/contracts/transfer/pairing-qr-v1.schema.json",
+  "title": "WorkCadenceTransfer pairing QR v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "type", "endpoint", "spkiSha256", "enrollmentId", "enrollmentSecret", "expiresAt"],
+  "properties": {
+    "version": { "const": 1 },
+    "type": { "const": "transfer_pairing_qr" },
+    "endpoint": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 128,
+      "x-privateIpv4HttpsOrigin": true
+    },
+    "spkiSha256": { "$ref": "#/$defs/base64Url32" },
+    "enrollmentId": { "$ref": "#/$defs/uuidV4" },
+    "enrollmentSecret": { "$ref": "#/$defs/base64Url32" },
+    "expiresAt": { "$ref": "#/$defs/utcMilliseconds" }
+  },
+  "$defs": {
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "base64Url32": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{43}$"
+    },
+    "utcMilliseconds": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    }
+  }
+}

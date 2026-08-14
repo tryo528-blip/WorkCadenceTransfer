@@ -1,0 +1,26 @@
+{
+  "vectorVersion": 1,
+  "purpose": "canonical digest photo metadata ordering and CRLF normalization",
+  "note": "This vector fixes digest bytes only; it does not contain a JPEG upload fixture.",
+  "submission": {
+    "version": 1,
+    "type": "transfer_submission",
+    "deviceId": "11111111-1111-4111-8111-111111111111",
+    "submissionId": "44444444-4444-4444-8444-444444444444",
+    "createdAt": "2026-08-14T02:03:04.005Z",
+    "targetDate": "2026-08-14",
+    "memo": "서류\r\n확인",
+    "photos": [
+      {
+        "photoId": "55555555-5555-4555-8555-555555555555",
+        "mime": "image/jpeg",
+        "bytes": 123456,
+        "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      }
+    ],
+    "contentDigest": "8318ae176d4bf88c778bd187f02adca4298cdde97766f1a6b49d7ac7b269a5be"
+  },
+  "normalizedMemo": "서류\n확인",
+  "canonicalByteLength": 239,
+  "canonicalHex": "57435431010000002431313131313131312d313131312d343131312d383131312d3131313131313131313131310000002434343434343434342d343434342d343434342d383434342d34343434343434343434343400000018323032362d30382d31345430323a30333a30342e3030355a0000000a323032362d30382d31340000000dec849ceba5980aed9995ec9db8010000002435353535353535352d353535352d343535352d383535352d3535353535353535353535350000000a696d6167652f6a706567000000000001e2400123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+}
