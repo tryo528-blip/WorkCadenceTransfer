@@ -2,10 +2,10 @@
 
 기준일: 2026-08-14
 
-상태: `CONTRACT_BASELINE_IMPLEMENTED · DOTNET_RECEIVER_PHOTO_SLICE`
+상태: `CONTRACT_BASELINE_IMPLEMENTED · DOTNET_RECEIVER_PHOTO_SLICE · ANDROID_UI_IMPLEMENTED`
 
-Git: private GitHub `tryo528-blip/WorkCadenceTransfer`, `main` → `origin/main`, 마지막 push
-`d12d812`; 사진 정규화 정책·receiver 변경은 아직 local uncommitted
+Git: private GitHub `tryo528-blip/WorkCadenceTransfer`, `main` → `origin/main`. 사진 정규화
+정책·Windows receiver 이후의 Android/Figma 연계 slice까지 이 핸드오프 범위에 포함한다.
 
 작업 경로: `C:\marco\WorkCadenceTransfer`
 
@@ -46,24 +46,28 @@ Git: private GitHub `tryo528-blip/WorkCadenceTransfer`, `main` → `origin/main`
   - AES-GCM encrypted `.staging/<uploadId>` → `ready/<recordId>` 원자 이동
   - digest 기반 idempotency와 재시도 ACK
 - [사진 JPEG 정규화 정책](03_PHOTO_NORMALIZATION_POLICY.md)
+- [앱 UI 명세와 Figma](04_APP_UI_SPEC.md)
 - Release build 확인: `dotnet build ... --configuration Release` 경고 0개·오류 0개
 - 현재 검증: Python conformance 9개 통과, 프로그램 생성 2x1 JPEG multipart 제출이 `READY`를
   만들고 같은 submission 재시도에서 같은 `recordId`·digest를 반환함. malformed JPEG는
   `INVALID_MEDIA`, header pixel-limit 초과는 `RESOURCE_LIMIT_EXCEEDED`로 거부함.
 
-signing 설정, 배포용 APK·IPA·EXE와 receiver UI는 아직 없습니다. 실제 Android/iPhone
-사진 fixture와 malformed/pixel-limit/Orientation 1~8 수용시험은 남아 있습니다. 문서가
+Figma 앱 UI v1과 Android Compose debug slice를 추가했습니다. Android는 WCT1 고정 vector,
+semantic validator, encrypted pending envelope, pinned TLS multipart, READY ACK purge 경로를
+구현했으며 debug APK assemble까지 확인했습니다. signing 설정, 배포용 APK·IPA·EXE와
+receiver UI는 아직 없습니다. 실제 Android/iPhone 사진 fixture와 malformed/pixel-limit/
+Orientation 1~8, Galaxy·KakaoTalk·문자·Windows TLS 조합 수용시험은 남아 있습니다. 문서가
 전체 제품 완료를 뜻하지 않습니다.
 
 ## 다음 구현 순서
 
 1. 실제 JPEG baseline/progressive와 EXIF Orientation 1~8 fixture 수용시험
 2. malformed/pixel-limit/metadata 제거/저장용 5 MiB 초과 부정 fixture 수용시험
-3. Android 메모·사진 foreground 제출
-4. Android 직접촬영·Sharesheet 암호화 import
+3. Android debug APK 설치 후 메모-only·JPEG 선택·공유 import 자동/수동 smoke 확인
+4. Windows receiver의 실제 QR enrollment와 pinned TLS multipart 제출
 5. ACK 유실·다중 탭·disk full·crash·잘못된 ACK 수용시험
-6. Android 실기기 승인 뒤 같은 contract의 iPhone 앱·Share Extension 구현
-7. 기능 완료 뒤 Figma 디자인, 실화면 승인, 별도 저장소 봉인
+6. 카메라 직접 촬영·QR 카메라 스캔 권한을 별도 승인할지 결정
+7. Android 실기기 승인 뒤 같은 contract의 iPhone 앱·Share Extension 구현
 
 ## 만들지 않을 것
 

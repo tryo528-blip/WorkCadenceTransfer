@@ -43,6 +43,7 @@
 - [수용시험](docs/ACCEPTANCE.md)
 - [의미 검증 계약](contracts/SEMANTIC_VALIDATION.md)
 - [사진 JPEG 정규화 정책](docs/03_PHOTO_NORMALIZATION_POLICY.md)
+- [앱 UI 명세와 Figma](docs/04_APP_UI_SPEC.md)
 - [계약 conformance harness](conformance/README.md)
 - [기존 프로젝트와의 이관 경계](docs/MIGRATION_SOURCE_BOUNDARY.md)
 - [다음 세션 핸드오프](docs/NEXT_SESSION_HANDOFF_2026-08-14.md)
@@ -50,7 +51,9 @@
 - [보안 보고 경계](SECURITY.md)
 - [HTML 설명서](docs/PROJECT_SPLIT_DECISION.html)
 
-상태: `CONTRACT-BASELINE-IMPLEMENTED · DOTNET-RECEIVER-PHOTO-SLICE`. Python conformance
-harness와 테스트가 있고, .NET 8 Windows foreground receiver의 TLS·1회 등록·단말 scope·
-메모·JPEG 사진 제출·암호화 READY·idempotency가 구현되어 Release 빌드까지 확인되었습니다.
-아직 signing 설정·배포 산출물·receiver UI와 실제 Android/iPhone 수용시험은 남아 있습니다.
+상태: `CONTRACT-BASELINE-IMPLEMENTED · DOTNET-RECEIVER-PHOTO-SLICE · ANDROID-UI-IMPLEMENTED`.
+Python conformance harness와 테스트, .NET 8 Windows foreground receiver, Figma 앱 설계와
+Android Compose debug slice가 있습니다. Android는 메모·JPEG 공유/선택·암호화 pending·
+WCT1 digest·pinned TLS multipart·READY purge 경로까지 자동검증 대상에 넣었습니다. 아직
+signing 설정·배포 산출물·카메라/QR 스캔·실제 Galaxy/KakaoTalk/문자/Windows 조합 수용시험은
+남아 있습니다.
