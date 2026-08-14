@@ -7,6 +7,10 @@ DerivedData/
 node_modules/
 dist/
 coverage/
+__pycache__/
+*.py[cod]
+**/bin/
+**/obj/
 *.apk
 *.aab
 *.ipa
@@ -27,6 +31,7 @@ coverage/
 *.db
 *.sqlite
 *.log
+*.dpapi
 records/
 pending/
 .staging/

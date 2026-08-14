@@ -7,7 +7,7 @@ WorkCadenceTransfer/
 ├─ apps/
 │  ├─ android/          # 별도 Android Studio project
 │  ├─ ios/              # 별도 Xcode project + Share Extension
-│  └─ windows-receiver/ # foreground receiver와 암호화 정본 viewer
+│  └─ windows-receiver/ # .NET foreground receiver와 암호화 정본 viewer
 ├─ contracts/
 │  ├─ submission-v1.schema.json
 │  ├─ ready-ack-v1.schema.json
@@ -18,6 +18,14 @@ WorkCadenceTransfer/
 │  ├─ SEMANTIC_VALIDATION.md
 │  ├─ error-codes.md
 │  └─ test-vectors/
+├─ conformance/
+│  ├─ __init__.py
+│  ├─ digest.py          # canonical digest v1 reference implementation
+│  ├─ schema.py          # duplicate-key loader와 contract schema subset validator
+│  ├─ semantic.py        # 공통 semantic validation reference implementation
+│  └─ README.md
+├─ tests/
+│  └─ test_contract_conformance.py
 ├─ docs/
 │  ├─ 00_DECISIONS.md
 │  ├─ 01_SECURITY_BOUNDARY.md
@@ -41,4 +49,8 @@ WorkCadenceTransfer/
 7. 기능 완료 후 Figma 디자인과 실화면 승인
 8. 각 프로젝트별 별도 build·서명·manifest·보안 packet 발행
 
-현재는 문서와 schema 준비 단계이므로 `apps/` 소스 디렉터리를 만들지 않습니다.
+현재 `apps/windows-receiver/`에는 .NET 8 foreground receiver의 최소 vertical slice가
+있습니다. TLS 인증서·등록정보는 Windows DPAPI로 보호하고, 메모 제출은 암호화 정본으로
+원자 저장합니다. 사진 정규화와 viewer, Android·iPhone 앱은 아직 구현하지 않았습니다.
+`conformance/`는 계속 표준 라이브러리만 사용하는 참조 검증 코드이며 운영 runtime이
+아닙니다.
