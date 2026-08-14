@@ -1,5 +1,8 @@
 # 최소 수용시험
 
+사진 입력·방향·메타데이터 제거·저장용 JPEG 규칙은
+[사진 JPEG 정규화 정책](03_PHOTO_NORMALIZATION_POLICY.md)을 기준으로 합니다.
+
 ## 계약 conformance
 
 - Android·iPhone·Windows가 `digest-v1-memo-only.json`과

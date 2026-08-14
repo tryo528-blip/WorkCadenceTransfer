@@ -31,6 +31,7 @@ WorkCadenceTransfer/
 │  ├─ 01_SECURITY_BOUNDARY.md
 │  ├─ 02_TRANSFER_PROTOCOL.md
 │  ├─ ACCEPTANCE.md
+│  ├─ 03_PHOTO_NORMALIZATION_POLICY.md
 │  ├─ MIGRATION_SOURCE_BOUNDARY.md
 │  ├─ NEXT_SESSION_HANDOFF_2026-08-14.md
 │  └─ PROJECT_SPLIT_DECISION.html
@@ -51,6 +52,7 @@ WorkCadenceTransfer/
 
 현재 `apps/windows-receiver/`에는 .NET 8 foreground receiver의 최소 vertical slice가
 있습니다. TLS 인증서·등록정보는 Windows DPAPI로 보호하고, 메모 제출은 암호화 정본으로
-원자 저장합니다. 사진 정규화와 viewer, Android·iPhone 앱은 아직 구현하지 않았습니다.
+원자 저장합니다. JPEG 사진 정규화도 구현되어 있으며, viewer와 Android·iPhone 앱은 아직
+구현하지 않았습니다.
 `conformance/`는 계속 표준 라이브러리만 사용하는 참조 검증 코드이며 운영 runtime이
 아닙니다.

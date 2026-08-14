@@ -2,10 +2,10 @@
 
 기준일: 2026-08-14
 
-상태: `CONTRACT_BASELINE_IMPLEMENTED · DOTNET_RECEIVER_VERTICAL_SLICE`
+상태: `CONTRACT_BASELINE_IMPLEMENTED · DOTNET_RECEIVER_PHOTO_SLICE`
 
 Git: private GitHub `tryo528-blip/WorkCadenceTransfer`, `main` → `origin/main`, 마지막 push
-`402237a`; conformance harness와 .NET receiver 변경은 아직 local uncommitted
+`d12d812`; 사진 정규화 정책·receiver 변경은 아직 local uncommitted
 
 작업 경로: `C:\marco\WorkCadenceTransfer`
 
@@ -40,21 +40,27 @@ Git: private GitHub `tryo528-blip/WorkCadenceTransfer`, `main` → `origin/main`
 - `apps/windows-receiver/`의 .NET 8 foreground receiver 최소 vertical slice
   - RFC1918 명시 bind와 HTTPS self-signed certificate
   - Windows DPAPI 보호 등록·단말 registry와 1회성 10분 enrollment
-  - strict JSON 및 multipart metadata 검사, memo-only READY 저장
+  - strict JSON 및 multipart metadata/photo 검사
+  - JPEG header/decode, 4,096px·12MP 제한, EXIF Orientation 적용, 8-bit RGB quality 90 재인코딩
+  - EXIF/GPS/XMP/IPTC/comment/thumbnail 제거와 wire/storage hash 분리 manifest
   - AES-GCM encrypted `.staging/<uploadId>` → `ready/<recordId>` 원자 이동
   - digest 기반 idempotency와 재시도 ACK
+- [사진 JPEG 정규화 정책](03_PHOTO_NORMALIZATION_POLICY.md)
 - Release build 확인: `dotnet build ... --configuration Release` 경고 0개·오류 0개
+- 현재 검증: Python conformance 9개 통과, 프로그램 생성 2x1 JPEG multipart 제출이 `READY`를
+  만들고 같은 submission 재시도에서 같은 `recordId`·digest를 반환함. malformed JPEG는
+  `INVALID_MEDIA`, header pixel-limit 초과는 `RESOURCE_LIMIT_EXCEEDED`로 거부함.
 
-signing 설정, 배포용 APK·IPA·EXE와 receiver UI는 아직 없습니다. 사진은 JPEG 정규화·픽셀/
-EXIF 검증 구현 전까지 `INVALID_MEDIA`로 거부합니다. 문서가 전체 제품 완료를 뜻하지
-않습니다.
+signing 설정, 배포용 APK·IPA·EXE와 receiver UI는 아직 없습니다. 실제 Android/iPhone
+사진 fixture와 malformed/pixel-limit/Orientation 1~8 수용시험은 남아 있습니다. 문서가
+전체 제품 완료를 뜻하지 않습니다.
 
 ## 다음 구현 순서
 
-1. .NET receiver와 Python contract vector의 digest·enrollment·READY 통합시험
-2. Android 메모 전용 foreground 제출
-3. Android 직접촬영·Sharesheet 암호화 import
-4. 사진 JPEG 정규화·픽셀/EXIF 정책 구현 후 사진 5장 제출
+1. 실제 JPEG baseline/progressive와 EXIF Orientation 1~8 fixture 수용시험
+2. malformed/pixel-limit/metadata 제거/저장용 5 MiB 초과 부정 fixture 수용시험
+3. Android 메모·사진 foreground 제출
+4. Android 직접촬영·Sharesheet 암호화 import
 5. ACK 유실·다중 탭·disk full·crash·잘못된 ACK 수용시험
 6. Android 실기기 승인 뒤 같은 contract의 iPhone 앱·Share Extension 구현
 7. 기능 완료 뒤 Figma 디자인, 실화면 승인, 별도 저장소 봉인

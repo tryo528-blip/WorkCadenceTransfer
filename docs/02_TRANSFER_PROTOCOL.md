@@ -68,7 +68,7 @@ Windows는 header로 인증된 단말 등록부의 `deviceId`, enabled/revoked �
 - `targetDate`: draft 생성 시 `Asia/Seoul` 오늘 날짜, `YYYY-MM-DD`
 - `memo`: CRLF와 CR을 LF로 바꾼 뒤 Unicode NFC, UTF-8 최대 8,192 bytes
 - `photos`: 사용자 선택 순서의 JPEG 0~5장, 서로 다른 `photoId`
-- 사진 한 장: 재인코딩 뒤 1~5 MiB
+- 사진 한 장: wire body와 저장용 재인코딩 결과 모두 최대 5 MiB(최소 1 byte)
 - 사진 전체: 최대 25 MiB
 - 해상도: 최대 12 MP, 한 변 최대 4,096 px
 
@@ -97,12 +97,14 @@ POST /v1/submissions/{submissionId}
 - 30초 동안 body byte가 들어오지 않거나 요청 시작 10분이 지나면 요청을 중단하고 staging을
   폐기합니다.
 
-Windows는 선언 bytes·MIME·사진 hash·decoded pixel과 전체 digest를 streaming 상한 안에서
-다시 검증합니다. 사진은 한 장씩 bounded process memory에서 decode·방향 적용·metadata 제거
-재인코딩한 뒤 암호문으로만 staging에 씁니다. 저장용 재인코딩 bytes·hash는 Windows encrypted
-manifest에 기록하며 wire `contentDigest`는 인증된 client 제출의 idempotency identity로
-유지합니다. foreground를 벗어난 모바일은 socket을 취소하며 그 callback 이후 새 byte를 보내지
-않습니다. Windows는 완성되지 않은 staging을 READY로 보이지 않습니다.
+Windows는 선언 bytes·MIME·wire 사진 hash·decoded pixel과 전체 digest를 streaming 상한
+안에서 다시 검증합니다. 사진은 한 장씩 bounded process memory에서 decode·방향 적용·metadata
+제거·8-bit RGB JPEG 재인코딩한 뒤 암호문으로만 staging에 씁니다. 저장용 재인코딩
+bytes·hash와 방향·pixel 정보는 Windows encrypted manifest에 기록하며 wire
+`contentDigest`는 인증된 client 제출의 idempotency identity로 유지합니다. 상세 규칙은
+[사진 JPEG 정규화 정책](03_PHOTO_NORMALIZATION_POLICY.md)에 고정합니다. foreground를 벗어난
+모바일은 socket을 취소하며 그 callback 이후 새 byte를 보내지 않습니다. Windows는 완성되지
+않은 staging을 READY로 보이지 않습니다.
 
 ## 5. canonical content digest
 

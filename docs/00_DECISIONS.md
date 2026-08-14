@@ -30,6 +30,10 @@
 4. 백그라운드 전송은 하지 않습니다. 사용자가 화면을 열어 둔 foreground에서 메모만,
    사진만 1~5장, 또는 메모+사진 1~5장을 한 번에 전송합니다.
 5. 실패 시 갤러리가 아닌 모바일 암호화 보관함에 원본을 유지하고 명시적으로 재시도합니다.
+6. Windows는 wire JPEG를 검증한 뒤 최대 4,096px·12MP를 넘으면 축소하지 않고 거부합니다.
+   EXIF Orientation을 픽셀에 적용하고 EXIF/GPS/XMP/IPTC/comment/thumbnail을 제거한 8-bit
+   RGB quality 90 JPEG만 encrypted ready에 저장합니다. 상세 기준은
+   [사진 JPEG 정규화 정책](03_PHOTO_NORMALIZATION_POLICY.md)으로 고정합니다.
 
 허용 조합은 `메모만`, `사진 1~5장만`, `메모 + 사진 1~5장`입니다. 메모와 사진이 모두
 비어 있으면 제출하지 않습니다.

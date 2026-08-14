@@ -82,6 +82,7 @@ public sealed class ReceiverState
     public EnrollmentStore Enrollment { get; }
     public DeviceRegistry Devices { get; }
     public ReadyIndex Index { get; }
+    public SemaphoreSlim PhotoGate { get; } = new(1, 1);
     public string StagingRoot { get; }
     public string ReadyRoot { get; }
 
@@ -91,7 +92,12 @@ public sealed class ReceiverState
         return Enrollment.Create(endpoint, SpkiSha256);
     }
 
-    public ReadyRecord WriteMemoReady(SubmissionMetadata metadata, SubmissionValidation validation, string uploadId, string recordId)
+    public ReadyRecord WriteMemoReady(
+        SubmissionMetadata metadata,
+        SubmissionValidation validation,
+        IReadOnlyList<NormalizedPhoto> normalizedPhotos,
+        string uploadId,
+        string recordId)
     {
         Directory.CreateDirectory(StagingRoot);
         Directory.CreateDirectory(ReadyRoot);
@@ -107,8 +113,25 @@ public sealed class ReceiverState
             var normalized = metadata with { Memo = validation.NormalizedMemo };
             var manifestAad = Aad.Build(recordId, metadata.DeviceId, metadata.SubmissionId, "manifest", "none", validation.ContentDigest);
             var memoAad = Aad.Build(recordId, metadata.DeviceId, metadata.SubmissionId, "memo", "none", validation.ContentDigest);
-            AtomicFile.Write(Path.Combine(stagingPath, "manifest.enc"), Encrypt(ContractJson.Serialize(normalized), recordKey, manifestAad));
+            var storedPhotos = normalizedPhotos
+                .Select((photo, index) => new StoredPhotoMetadata(
+                    photo.PhotoId,
+                    photo.EncodedBytes.LongLength,
+                    photo.Sha256,
+                    photo.Width,
+                    photo.Height,
+                    photo.OrientationApplied,
+                    $"photo-{index + 1:D2}.enc"))
+                .ToList();
+            AtomicFile.Write(
+                Path.Combine(stagingPath, "manifest.enc"),
+                Encrypt(ContractJson.Serialize(new ReadyManifest(normalized, storedPhotos)), recordKey, manifestAad));
             AtomicFile.Write(Path.Combine(stagingPath, "memo.enc"), Encrypt(Encoding.UTF8.GetBytes(validation.NormalizedMemo), recordKey, memoAad));
+            foreach (var (photo, stored) in normalizedPhotos.Zip(storedPhotos))
+            {
+                var photoAad = Aad.Build(recordId, metadata.DeviceId, metadata.SubmissionId, "photo", photo.PhotoId, validation.ContentDigest);
+                AtomicFile.Write(Path.Combine(stagingPath, stored.BlobName), Encrypt(photo.EncodedBytes, recordKey, photoAad));
+            }
 
             Directory.Move(stagingPath, readyPath);
             return new ReadyRecord(
@@ -125,6 +148,10 @@ public sealed class ReceiverState
         }
         finally
         {
+            foreach (var photo in normalizedPhotos)
+            {
+                CryptographicOperations.ZeroMemory(photo.EncodedBytes);
+            }
             CryptographicOperations.ZeroMemory(recordKey);
         }
     }

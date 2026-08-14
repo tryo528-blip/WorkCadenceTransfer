@@ -26,11 +26,12 @@ dotnet run --project apps\windows-receiver\WorkCadenceTransfer.Receiver.csproj -
   --listen 192.168.0.10:8443 --root C:\WorkCadenceTransferData
 ```
 
-수신기는 현재 메모 전용 제출을 대상으로 합니다. TLS 인증서와 등록·단말 검증 정보는 현재
-Windows 사용자 DPAPI로 보호하고, 제출 정본은 평문 임시파일 없이 AES-GCM으로 암호화한 뒤
-`.staging\<uploadId>`에서 `ready\<recordId>`로 원자 이동합니다. 같은 단말의 같은 제출을
+수신기는 메모와 JPEG 사진 제출을 대상으로 합니다. TLS 인증서와 등록·단말 검증 정보는
+현재 Windows 사용자 DPAPI로 보호하고, 제출 정본은 평문 임시파일 없이 AES-GCM으로 암호화한
+뒤 `.staging\<uploadId>`에서 `ready\<recordId>`로 원자 이동합니다. 같은 단말의 같은 제출을
 재시도하면 같은 READY 응답을 반환하며, 다른 digest는 충돌로 거부합니다.
 
-사진 제출은 계약과 메타데이터 검증을 먼저 수행하지만, JPEG 정규화·픽셀/EXIF 검증 구현 전까지
-`INVALID_MEDIA`로 거부합니다. 사진 수신을 열 때는 해당 구현과 실제 기기 수용시험을 별도로
-완료해야 합니다.
+사진은 [정규화 정책](../../docs/03_PHOTO_NORMALIZATION_POLICY.md)에 따라 방향을 적용하고
+EXIF/GPS/XMP/IPTC/comment/thumbnail을 제거한 8-bit RGB JPEG로 재인코딩합니다. wire hash와
+저장용 hash는 분리해 encrypted manifest에 기록합니다. 실제 기기 수용시험은 아직 남아
+있습니다.

@@ -42,6 +42,7 @@
 - [전송 프로토콜](docs/02_TRANSFER_PROTOCOL.md)
 - [수용시험](docs/ACCEPTANCE.md)
 - [의미 검증 계약](contracts/SEMANTIC_VALIDATION.md)
+- [사진 JPEG 정규화 정책](docs/03_PHOTO_NORMALIZATION_POLICY.md)
 - [계약 conformance harness](conformance/README.md)
 - [기존 프로젝트와의 이관 경계](docs/MIGRATION_SOURCE_BOUNDARY.md)
 - [다음 세션 핸드오프](docs/NEXT_SESSION_HANDOFF_2026-08-14.md)
@@ -49,7 +50,7 @@
 - [보안 보고 경계](SECURITY.md)
 - [HTML 설명서](docs/PROJECT_SPLIT_DECISION.html)
 
-상태: `CONTRACT-BASELINE-IMPLEMENTED · DOTNET-RECEIVER-VERTICAL-SLICE`. Python conformance
+상태: `CONTRACT-BASELINE-IMPLEMENTED · DOTNET-RECEIVER-PHOTO-SLICE`. Python conformance
 harness와 테스트가 있고, .NET 8 Windows foreground receiver의 TLS·1회 등록·단말 scope·
-메모 제출·암호화 READY·idempotency 골격이 구현되어 Release 빌드까지 확인되었습니다.
-아직 signing 설정·배포 산출물·receiver UI·사진 JPEG 정규화·실기기 수용시험은 남아 있습니다.
+메모·JPEG 사진 제출·암호화 READY·idempotency가 구현되어 Release 빌드까지 확인되었습니다.
+아직 signing 설정·배포 산출물·receiver UI와 실제 Android/iPhone 수용시험은 남아 있습니다.

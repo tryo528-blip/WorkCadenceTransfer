@@ -26,7 +26,8 @@ JSON Schema 검사는 첫 번째 문턱일 뿐입니다. `format`과 `x-*` keywo
 5. 사진 배열은 0~5장이고 모든 `photoId`가 서로 달라야 합니다.
 6. 각 선언 bytes는 1~5,242,880이고 합계는 26,214,400 이하여야 합니다.
 7. MIME은 정확히 `image/jpeg`이며 실제 body의 byte length·SHA-256·JPEG decode·pixel 상한이
-   metadata와 모두 맞아야 합니다.
+   metadata와 모두 맞아야 합니다. Windows 저장용 재인코딩 규칙은
+   [사진 JPEG 정규화 정책](../docs/03_PHOTO_NORMALIZATION_POLICY.md)에 따릅니다.
 
 정규화된 memo와 metadata 사진 배열 순서를 canonical digest와 Windows 정본에 사용합니다.
 UI 문자열을 다시 trim하거나 사진을 정렬해 digest를 바꾸지 않습니다.

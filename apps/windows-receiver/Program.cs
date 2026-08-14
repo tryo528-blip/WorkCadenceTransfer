@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
 
@@ -113,6 +114,7 @@ app.MapPost("/v1/submissions/{submissionId}", async (HttpContext context, string
         return;
     }
 
+    var normalizedPhotos = new List<NormalizedPhoto>();
     try
     {
         var reader = new MultipartReader(boundary, context.Request.Body)
@@ -145,10 +147,63 @@ app.MapPost("/v1/submissions/{submissionId}", async (HttpContext context, string
             return;
         }
 
-        if (await reader.ReadNextSectionAsync(context.RequestAborted) is not null)
+        await state.PhotoGate.WaitAsync(context.RequestAborted);
+        try
         {
-            await WriteError(context.Response, "INVALID_SUBMISSION", false, 400);
-            return;
+            foreach (var expectedPhoto in metadata.Photos ?? [])
+            {
+                var photoSection = await reader.ReadNextSectionAsync(context.RequestAborted);
+                if (photoSection is null || PartName(photoSection) != "photo")
+                {
+                    await WriteError(context.Response, "INVALID_SUBMISSION", false, 400);
+                    return;
+                }
+                if (photoSection.Headers is null ||
+                    !photoSection.Headers.TryGetValue("Content-Type", out var photoContentType) ||
+                    !IsMediaType(photoContentType.ToString(), "image/jpeg") ||
+                    !photoSection.Headers.TryGetValue("Content-ID", out var contentId) ||
+                    !string.Equals(contentId.ToString(), $"<{expectedPhoto.PhotoId}>", StringComparison.Ordinal))
+                {
+                    await WriteError(context.Response, "INVALID_SUBMISSION", false, 400);
+                    return;
+                }
+
+                var body = await ReadAtMost(photoSection.Body, checked((int)expectedPhoto.Bytes + 1), context.RequestAborted);
+                try
+                {
+                    if (body.LongLength != expectedPhoto.Bytes ||
+                        !CryptographicOperations.FixedTimeEquals(
+                            SHA256.HashData(body),
+                            Convert.FromHexString(expectedPhoto.Sha256)))
+                    {
+                        await WriteError(context.Response, "CONTENT_DIGEST_MISMATCH", false, 400);
+                        return;
+                    }
+
+                    var normalized = PhotoNormalizer.Normalize(body, expectedPhoto.PhotoId);
+                    if (!normalized.Valid)
+                    {
+                        var code = normalized.ErrorCode ?? "INVALID_MEDIA";
+                        await WriteError(context.Response, code, false, ErrorStatus(code));
+                        return;
+                    }
+                    normalizedPhotos.Add(normalized.Photo!);
+                }
+                finally
+                {
+                    CryptographicOperations.ZeroMemory(body);
+                }
+            }
+
+            if (await reader.ReadNextSectionAsync(context.RequestAborted) is not null)
+            {
+                await WriteError(context.Response, "INVALID_SUBMISSION", false, 400);
+                return;
+            }
+        }
+        finally
+        {
+            state.PhotoGate.Release();
         }
 
         await state.Index.Gate.WaitAsync(context.RequestAborted);
@@ -169,6 +224,7 @@ app.MapPost("/v1/submissions/{submissionId}", async (HttpContext context, string
             var ready = state.WriteMemoReady(
                 metadata,
                 validation,
+                normalizedPhotos,
                 Guid.NewGuid().ToString("D"),
                 Guid.NewGuid().ToString("D"));
             state.Index.Add(ready);
@@ -190,6 +246,10 @@ app.MapPost("/v1/submissions/{submissionId}", async (HttpContext context, string
     catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
     {
         // The client left foreground or disconnected. No READY/ACK is created here.
+    }
+    finally
+    {
+        ClearNormalizedPhotos(normalizedPhotos);
     }
 });
 
@@ -219,6 +279,10 @@ static int ErrorStatus(string code) => code switch
 static bool IsJson(string? contentType) =>
     contentType is not null &&
     string.Equals(contentType.Split(';', 2)[0].Trim(), "application/json", StringComparison.OrdinalIgnoreCase);
+
+static bool IsMediaType(string? contentType, string expected) =>
+    contentType is not null &&
+    string.Equals(contentType.Split(';', 2)[0].Trim(), expected, StringComparison.OrdinalIgnoreCase);
 
 static string? GetBoundary(string? contentType)
 {
@@ -277,3 +341,11 @@ static async Task WriteJson(HttpResponse response, object value, int statusCode)
 
 static Task WriteError(HttpResponse response, string code, bool retryable, int statusCode) =>
     WriteJson(response, new TransferError(1, "transfer_error", false, code, retryable), statusCode);
+
+static void ClearNormalizedPhotos(IEnumerable<NormalizedPhoto> photos)
+{
+    foreach (var photo in photos)
+    {
+        CryptographicOperations.ZeroMemory(photo.EncodedBytes);
+    }
+}

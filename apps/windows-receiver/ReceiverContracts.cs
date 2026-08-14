@@ -10,6 +10,15 @@ namespace WorkCadenceTransfer.Receiver;
 
 public sealed record PhotoMetadata(string PhotoId, string Mime, long Bytes, string Sha256);
 
+public sealed record StoredPhotoMetadata(
+    string PhotoId,
+    long Bytes,
+    string Sha256,
+    int Width,
+    int Height,
+    int OrientationApplied,
+    string BlobName);
+
 public sealed record SubmissionMetadata(
     int Version,
     string Type,
@@ -59,6 +68,8 @@ public sealed record SubmissionValidation(
     string? ErrorMessage,
     string NormalizedMemo,
     string ContentDigest);
+
+public sealed record ReadyManifest(SubmissionMetadata Submission, List<StoredPhotoMetadata> Photos);
 
 public static class ContractJson
 {
@@ -180,10 +191,6 @@ public static class SubmissionContract
         if (totalBytes > 26_214_400)
         {
             return Reject("RESOURCE_LIMIT_EXCEEDED", "total photo bytes exceed 25 MiB");
-        }
-        if (submission.Photos.Count > 0)
-        {
-            return Reject("INVALID_MEDIA", "photo normalization is not enabled in the memo-only receiver");
         }
         if (!Sha256.IsMatch(submission.ContentDigest))
         {

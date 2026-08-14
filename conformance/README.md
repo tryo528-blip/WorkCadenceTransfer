@@ -26,7 +26,7 @@ python -m unittest discover -s tests -v
 
 ## 구현 경계
 
-고정 vector에는 JPEG binary가 없으므로 body 검사는 선택적입니다. 실제 Windows receiver와
-모바일 앱은 이 harness 결과에 더해 pairing·ACK·multipart 상태, bounded JPEG decode,
-orientation 적용, EXIF/GPS/XMP 제거, pixel 상한, 암호화·원자 저장을 해당 구현 단계에서
-별도 수용시험으로 통과해야 합니다.
+고정 vector에는 JPEG binary가 없으므로 body 검사는 선택적입니다. 사진의 bounded decode,
+orientation 적용, EXIF/GPS/XMP/IPTC/comment 제거, 8-bit RGB 재인코딩과 pixel 상한은
+[사진 JPEG 정규화 정책](../docs/03_PHOTO_NORMALIZATION_POLICY.md)과 Windows receiver의
+구현·수용시험에서 검증합니다. 이 Python harness는 이미지 코덱 runtime이 되지 않습니다.
